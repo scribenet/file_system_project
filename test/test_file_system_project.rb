@@ -59,5 +59,6 @@ class PrintArticulationTests < Minitest::Test
     setup_project
     basic_accessor_assertions
     basic_adder_assertions
+    assert @fsproject.contributors
   end
 end

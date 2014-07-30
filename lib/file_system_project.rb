@@ -2,11 +2,18 @@ require 'nokogiri'
 require_relative 'file_struct'
 
 class FileSystemProject
-  attr_reader :root, :file_system
+  attr_reader :root, :file_system, :data
 
   def initialize(project_dir, file_system)
     @root = project_dir
     @file_system = file_system
+    @data = file_system[:data] ? make_data_accessors(file_system) : nil
+  end
+
+  def make_data_accessors(file_system)
+    data_file_path = File.join(root, file_system[:data][:loc], 'data.xml')
+    raw_data = File.read(data_file_path)
+    Nokogiri::Slop(raw_data)
   end
 
   def method_missing(method, *args)
@@ -14,8 +21,22 @@ class FileSystemProject
       get_files(dir)
     elsif dir = directory_adder(method)
       add_file(dir, *args)
+    elsif data_has?(method)
+      data_for(method)
     else
       super
+    end
+  end
+
+  def data_has?(method)
+    data and data_for(method)
+  end
+
+  def data_for(method)
+    begin
+      data.data.send(method)
+    rescue
+      false
     end
   end
 
