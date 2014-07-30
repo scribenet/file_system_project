@@ -28,13 +28,19 @@ end
 class PrintArticulationTests < Minitest::Test
   include TestHelpers
 
-  def setup
-    @fs = FileS
+  def setup_project
+    @fsproject = FileSystemProject.new(@project, @yaml)
   end
 
-  def test_basic
+  def test_basic_project
     @yaml, @project = yaml_and_dir('file_system1')
-
-
+    setup_project
+    assert @fsproject.foocatchoo_files.is_a?(Array)
+    assert @fsproject.foocatchoo_files.first.content.is_a?(String)
+    assert @fsproject.foocatchoo_files.first.ext == '.xml'
+    assert @fsproject.foocatchoo_files.first.doc.is_a?(Nokogiri::XML::Document)
+    assert @fsproject.socrates_files.is_a?(Array)
+    assert @fsproject.socrates_files.first.content.is_a?(String)
+    assert @fsproject.socrates_files.first.ext == '.yml'
   end
 end
