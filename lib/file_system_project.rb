@@ -1,7 +1,7 @@
 require 'nokogiri'
 
 class FileStruct
-  attr_accessor :basename, :content, :path
+  attr_accessor :basename, :content, :path, :doc
   attr_reader :ext
 
   def initialize(path, options = {})
@@ -29,7 +29,7 @@ end
 
 class XMLFileStruct < FileStruct
   def doc
-    @doc ||= Nokogiri.XML(@content)
+    doc ||= Nokogiri.XML(@content)
   end
 
   def reload!
@@ -74,33 +74,63 @@ class FileSystemProject
   end
 
   def method_missing(method, *args)
-    if method.match(/^.+_files/)
-      get_files(method)
+    if dir = directory_accessor(method)
+      get_files(dir)
+    elsif dir = directory_adder(method)
+      add_file(dir, *args)
     else
       super
     end
   end
 
-  def known_directory(method)
-    @file_system[:dirs].keys.find { |d| method.match(/#{d}_files/) }
+  def directory_accessor(method_name)
+    @file_system[:dirs].keys.find { |d| method_name.match(/^#{d}_files$/) }
+  end
+
+  def directory_adder(method_name)
+    @file_system[:dirs].keys.find { |d| method_name.match(/^add_#{d}_file$/) }
   end
 
   def file_struct(type)
     case type
-      when 'xml'
-        XMLFileStruct
-      when 'yaml'
-        YAMLFileStruct
-      else
-        FileStruct
+    when 'xml'
+      XMLFileStruct
+    when 'yaml'
+      YAMLFileStruct
+    else
+      FileStruct
     end
   end
 
-  def get_files(method)
-    dir = known_directory(method)
-    fail "Unknown directory." if dir.nil?
+  def dir_path(dir)
+    File.join(@root, dir)
+  end
+
+  def get_files(dir)
     type = @file_system[:dirs][dir]
-    locations = Dir.glob(File.join(@root, dir, '/*'))
+    locations = Dir.glob(File.join(dir_path(dir), '/*'))
     locations.map{ |d| file_struct(type).new(d) }
+  end
+
+  def add_file(dir, *args)
+    fail ArgumentError unless valid_adder_args?(args)
+    outdir = File.join(@root, dir)
+    ensure_dir_exists(outdir)
+    outfile = File.join(outdir, args[0])
+    write_and_sync(outfile, args[1])
+  end
+
+  def write_and_sync(file, content)
+    out = File.open(file, 'w')
+    out.write(content)
+    out.fsync
+  end
+
+  def ensure_dir_exists(dir)
+    Dir.mkdir(dir) unless File.exist?(dir)
+  end
+
+  def valid_adder_args?(args)
+    args.size == 2 and args.all? { |a| a.is_a?(String) }
   end
 end
