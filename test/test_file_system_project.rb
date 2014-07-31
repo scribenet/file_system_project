@@ -33,6 +33,14 @@ class PrintArticulationTests < Minitest::Test
   end
 
   def teardown
+    delete_added_files
+  end
+
+  def setup
+    delete_added_files
+  end
+
+  def delete_added_files
     dels = Dir.glob(File.join(SAMPLES, '/**/*')).collect { |x| x if x.match(/\/new_/) }.compact
     dels.map { |d| File.delete(d) }
   end
@@ -59,6 +67,8 @@ class PrintArticulationTests < Minitest::Test
     setup_project
     basic_accessor_assertions
     basic_adder_assertions
+    assert @fsproject.option_one
     assert @fsproject.contributors
+    assert @fsproject.contributors.contrib
   end
 end
