@@ -3,15 +3,28 @@ require_relative 'file_struct'
 
 class FileSystemProject
   attr_reader :root, :file_system, :data
+  attr_accessor :error_log
 
   def initialize(project_dir, file_system)
     @root = project_dir
     @file_system = file_system
-    @data = file_system[:data] ? make_data_accessors(file_system) : nil
+    @data = data_file_exists? ? make_data_accessors(file_system) : nil
+    @error_log = {}
+  end
+
+  def add_to_error_log(name, error)
+    error_log[name] = error
+  end
+
+  def data_file_exists?
+    file_system[:data] and File.exists?(data_file_path)
+  end
+
+  def data_file_path
+    File.join(root, file_system[:data][:loc], 'data.xml')
   end
 
   def make_data_accessors(file_system)
-    data_file_path = File.join(root, file_system[:data][:loc], 'data.xml')
     raw_data = File.read(data_file_path)
     Nokogiri::Slop(raw_data)
   end
@@ -90,4 +103,7 @@ class FileSystemProject
   def valid_adder_args?(args)
     args.size == 2 and args.all? { |a| a.is_a?(String) }
   end
+end
+
+module ErrorLogging
 end
