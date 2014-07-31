@@ -73,8 +73,8 @@ class FileSystemProject
     fail ArgumentError unless valid_adder_args?(args)
     outdir = File.join(@root, dir)
     ensure_dir_exists(outdir)
-    outfile = File.join(outdir, args[0])
-    write_and_sync(outfile, args[1])
+    outfile = File.join(outdir, args[1])
+    write_and_sync(outfile, args[0])
   end
 
   def write_and_sync(file, content)
