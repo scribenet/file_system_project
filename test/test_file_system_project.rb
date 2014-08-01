@@ -69,6 +69,6 @@ class PrintArticulationTests < Minitest::Test
     basic_adder_assertions
     assert @fsproject.option_one
     assert @fsproject.contributors
-    assert @fsproject.contributors.contrib
+    assert @fsproject.contributors.contribs
   end
 end

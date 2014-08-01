@@ -1,14 +1,16 @@
 require 'nokogiri'
 require_relative 'file_struct'
+require_relative 'data_mapper'
 
 class FileSystemProject
-  attr_reader :root, :file_system, :data
+  attr_reader :root, :file_system, :data_map
   attr_accessor :error_log
 
   def initialize(project_dir, file_system)
     @root = project_dir
     @file_system = file_system
-    @data = data_file_exists? ? make_data_accessors(file_system) : nil
+    @data_map = data_file_exists? ? make_data_accessors(file_system) : nil
+    add_data_map_methods if @data_map
     @error_log = {}
   end
 
@@ -26,7 +28,15 @@ class FileSystemProject
 
   def make_data_accessors(file_system)
     raw_data = File.read(data_file_path)
-    Nokogiri::Slop(raw_data)
+    DataMapper.new(raw_data)
+  end
+
+  def add_data_map_methods
+    @data_map.mapper.singleton_methods.each do |meth|
+      self.class.send(:define_method, meth) do
+        data_map.mapper.send(meth)
+      end
+    end
   end
 
   def method_missing(method, *args)
@@ -34,8 +44,6 @@ class FileSystemProject
       get_files(dir)
     elsif dir = directory_adder(method)
       add_file(dir, *args)
-    elsif data_has?(method)
-      data_for(method)
     else
       super
     end
@@ -47,7 +55,7 @@ class FileSystemProject
 
   def data_for(method)
     begin
-      data.data.send(method)
+      data_map.mapper.send(method)
     rescue
       false
     end
