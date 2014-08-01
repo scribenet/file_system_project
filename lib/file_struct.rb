@@ -1,12 +1,13 @@
 class FileStruct
-  attr_accessor :basename, :content, :path, :doc
-  attr_reader :ext
+  attr_accessor :basename, :content, :path
+  attr_reader :ext, :version
 
   def initialize(path, options = {})
     @path = path
     @basename = File.basename(path)
     @ext = File.extname(path)
-    @content = File.read(@path)
+    @content = options[:content] || File.read(@path)
+    @version = options[:version]
   end
 
   def basic_name
@@ -27,7 +28,7 @@ end
 
 class XMLFileStruct < FileStruct
   def doc
-    doc ||= Nokogiri.XML(@content)
+    @doc ||= Nokogiri.XML(@content)
   end
 
   def reload!

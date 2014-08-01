@@ -4,13 +4,25 @@ require 'minitest/autorun'
 
 describe FileSystemProject do
 
+  YAM = {
+    :dirs => {
+      'indd' => {
+        :type => 'xml'
+      },
+      'sam' => {
+        :type => 'xml'
+      },
+      'docx' => {
+        :type => 'bin'
+      },
+    }
+  }
   before do
     @tempdir = Dir.mktmpdir 'random'
     @path = File.absolute_path @tempdir
     FileUtils.rm_r( @path ) if File.exists? @path
     FileUtils.cp_r File.absolute_path("#{__FILE__}/../samples/project_dir"), @path
-    struct = { :dirs => { 'indd' => 'xml', 'sam' => 'xml', 'docx' => nil } }
-    @project = FileSystemProject.new(@path, struct)
+    @project = FileSystemProject.new(@path, YAM)
   end
 
   describe 'when asked for a set of files' do

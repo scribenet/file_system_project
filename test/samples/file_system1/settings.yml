@@ -1,6 +1,8 @@
 :dirs:
-  foocatchoo: xml
-  socrates: yaml
+  foocatchoo:
+    :type: xml
+  socrates:
+    :type: yaml
   candleabra: 
 :data: 
   :type: xml

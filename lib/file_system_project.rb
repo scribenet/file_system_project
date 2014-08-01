@@ -5,9 +5,11 @@ require_relative 'data_mapper'
 class FileSystemProject
   attr_reader :root, :file_system, :data_map
   attr_accessor :error_log
+  alias_method :path, :root
 
   def initialize(project_dir, file_system)
     @root = project_dir
+    fail(ArgumentError, "Project directory does not exist.") unless File.exist?(@root)
     @file_system = file_system
     @data_map = data_file_exists? ? make_data_accessors(file_system) : nil
     add_data_map_methods if @data_map
@@ -75,6 +77,10 @@ class FileSystemProject
       XMLFileStruct
     when 'yaml'
       YAMLFileStruct
+    when 'txt'
+      FileStruct
+    when 'bin'
+      FileStruct
     else
       FileStruct
     end
@@ -85,9 +91,16 @@ class FileSystemProject
   end
 
   def get_files(dir)
-    type = @file_system[:dirs][dir]
-    locations = Dir.glob(File.join(dir_path(dir), '/*'))
-    locations.map{ |d| file_struct(type).new(d) }
+    type = @file_system[:dirs][dir][:type]
+    locations = Dir.glob(File.join(dir_path(dir), '/**/*')).reject { |d| File.directory?(d) }
+    locations.map do |d| 
+      opts = @file_system[:dirs][dir][:versions] ? {version: get_version(d)} : {}
+      file_struct(type).new(d, opts)
+    end
+  end
+
+  def get_version(f)
+    File.dirname(f)[/(?<=\/)[^\/]+$/]
   end
 
   def add_file(dir, *args)
@@ -109,7 +122,7 @@ class FileSystemProject
   end
 
   def valid_adder_args?(args)
-    args.size == 2 and args.all? { |a| a.is_a?(String) }
+    args.size >= 2 and args[0..1].all? { |a| a.is_a?(String) }
   end
 end
 
