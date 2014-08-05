@@ -7,7 +7,7 @@ spec = Gem::Specification.new do |s|
   s.platform = Gem::Platform::RUBY
   s.summary = 'Make a file system project object with accessor methods.'
   s.require_paths << 'lib'
-  s.files = Dir.glob("{lib,etc}/**/*")
+  s.files = Dir.glob("lib/*.rb")
   s.add_development_dependency('rake')
   s.add_development_dependency('pry')
   s.add_development_dependency('minitest', '> 5.0.0')
