@@ -1,6 +1,4 @@
-require_relative '../lib/file_system_project'
-require 'tmpdir'
-require 'minitest/autorun'
+require_relative 'test_helper'
 
 describe FileSystemProject do
 
