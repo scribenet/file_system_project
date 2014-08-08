@@ -1,6 +1,6 @@
 spec = Gem::Specification.new do |s| 
   s.name = 'file_system_project'
-  s.version = '0.0.1'
+  s.version = '0.0.2'
   s.author = 'Dan Corrigan'
   s.email = 'dcorrigan@scribenet.com'
   s.homepage = 'http://wfdm.scribenet.com'
