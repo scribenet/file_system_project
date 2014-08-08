@@ -42,8 +42,8 @@ describe FileSystemProject do
 
   describe 'when adding a new file' do
     before do
-      @text ="<sam><pf>short and sweet</pf></sam>" 
-      @project.add_sam_file(@text, 'foo.sam')
+      @text ="<sam><pf>short and sweet</pf></sam>"
+      @project.add_sam_file(@text, name: 'foo.sam')
     end
     it "writes the text to the file type's subdir" do
       File.read(@path + "/sam/foo.sam").must_equal @text

@@ -93,7 +93,7 @@ class FileSystemProject
   def get_files(dir)
     type = @file_system[:dirs][dir][:type]
     locations = Dir.glob(File.join(dir_path(dir), '/**/*')).reject { |d| File.directory?(d) }
-    locations.map do |d| 
+    locations.map do |d|
       opts = @file_system[:dirs][dir][:versions] ? {version: get_version(d)} : {}
       file_struct(type).new(d, opts)
     end
@@ -104,11 +104,13 @@ class FileSystemProject
   end
 
   def add_file(dir, *args)
-    fail ArgumentError unless valid_adder_args?(args)
+    fail ArgumentError, "Wrong number or type of file arguments." unless valid_adder_args?(args)
     outdir = File.join(@root, dir)
     ensure_dir_exists(outdir)
-    outfile = File.join(outdir, args[1])
-    write_and_sync(outfile, args[0])
+    content = args[0]
+    options = args[1]
+    outfile = File.join(outdir, options[:name])
+    write_and_sync(outfile, content)
   end
 
   def write_and_sync(file, content)
@@ -122,7 +124,7 @@ class FileSystemProject
   end
 
   def valid_adder_args?(args)
-    args.size >= 2 and args[0..1].all? { |a| a.is_a?(String) }
+    args.size == 2 and args[1].is_a?(Hash)
   end
 end
 

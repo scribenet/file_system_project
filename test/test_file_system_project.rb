@@ -33,7 +33,7 @@ class PrintArticulationTests < Minitest::Test
 
   def basic_adder_assertions
     current_size = @fsproject.foocatchoo_files.size
-    @fsproject.add_foocatchoo_file("<foo/>", 'new_foo.xml')
+    @fsproject.add_foocatchoo_file("<foo/>", name: 'new_foo.xml')
     assert @fsproject.foocatchoo_files.size > current_size
   end
 
